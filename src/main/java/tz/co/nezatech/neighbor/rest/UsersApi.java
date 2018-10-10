@@ -31,6 +31,24 @@ public class UsersApi {
         return new ApiResponse(0, "Successfully saved a user");
     }
 
+    @PostMapping("/sendotp")
+    public ApiResponse sendOtp(@RequestBody Msisdn msisdn) {
+        boolean b = userService.generateAndRecordOTP(msisdn.getMsisdn());
+        return b ? new ApiResponse(0, "Successfully sent OTP") : new ApiResponse(-1, "OTP sending failed");
+    }
+
+    @PostMapping("/validateotp")
+    public ApiResponse validateOtp(@RequestBody Msisdn msisdn) {
+        int res = userService.validateOTP(msisdn.getMsisdn(), msisdn.getToken());
+        String msg = "Invalid OTP";
+        if (res == 0) {
+            msg = "Valid OTP";
+        } else if (res == 1) {
+            msg = "OTP expired";
+        }
+        return new ApiResponse(res, msg);
+    }
+
     @GetMapping("/privileges")
     public List<Privilege> privileges() {
         return userService.privileges();
